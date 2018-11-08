@@ -6,6 +6,7 @@ import createFromIconfontCN from './IconFont';
 import {
   svgBaseProps, withThemeSuffix,
   removeTypeTheme, getThemeFromTypeName,
+  alias,
 } from './utils';
 import warning from '../_util/warning';
 import { getTwoToneColor, setTwoToneColor } from './twoTonePrimaryColor';
@@ -42,7 +43,15 @@ export interface IconProps {
   prefixCls?: string;
 }
 
-const Icon: React.SFC<IconProps> = (props) => {
+export interface IconComponent<P> extends React.SFC<P> {
+  createFromIconfontCN: typeof createFromIconfontCN;
+  getTwoToneColor: typeof getTwoToneColor;
+  setTwoToneColor: typeof setTwoToneColor;
+  unstable_ChangeThemeOfIconsDangerously?: typeof unstable_ChangeThemeOfIconsDangerously;
+  unstable_ChangeDefaultThemeOfIcons?: typeof unstable_ChangeDefaultThemeOfIcons;
+}
+
+const Icon: IconComponent<IconProps> = (props) => {
   const {
     // affect outter <i>...</i>
     className,
@@ -121,13 +130,13 @@ const Icon: React.SFC<IconProps> = (props) => {
   if (typeof type === 'string') {
     let computedType = type;
     if (theme) {
-      const alreadyHaveTheme = getThemeFromTypeName(type);
-      warning(!alreadyHaveTheme,
-        `This icon already has a theme '${alreadyHaveTheme}'.` +
-        ` The prop 'theme' ${theme} will be ignored.`);
+      const themeInName = getThemeFromTypeName(type);
+      warning(!themeInName || theme === themeInName,
+        `The icon name '${type}' already specify a theme '${themeInName}',` +
+        ` the 'theme' prop '${theme}' will be ignored.`);
     }
     computedType = withThemeSuffix(
-      removeTypeTheme(type),
+      removeTypeTheme(alias(type)),
       dangerousTheme || theme || defaultTheme,
     );
     innerNode = (
@@ -144,14 +153,6 @@ const Icon: React.SFC<IconProps> = (props) => {
       {innerNode}
     </i>
   );
-};
-
-export type IconType = typeof Icon & {
-  createFromIconfontCN: typeof createFromIconfontCN;
-  getTwoToneColor: typeof getTwoToneColor;
-  setTwoToneColor: typeof setTwoToneColor;
-  unstable_ChangeThemeOfIconsDangerously: typeof unstable_ChangeThemeOfIconsDangerously;
-  unstable_ChangeDefaultThemeOfIcons: typeof unstable_ChangeDefaultThemeOfIcons;
 };
 
 function unstable_ChangeThemeOfIconsDangerously(theme?: ThemeType) {
@@ -172,9 +173,8 @@ function unstable_ChangeDefaultThemeOfIcons(theme: ThemeType) {
   defaultTheme = theme;
 }
 
-Icon.displayName = 'Icon';
-(Icon as IconType).createFromIconfontCN = createFromIconfontCN;
-(Icon as IconType).getTwoToneColor = getTwoToneColor;
-(Icon as IconType).setTwoToneColor = setTwoToneColor;
+Icon.createFromIconfontCN = createFromIconfontCN;
+Icon.getTwoToneColor = getTwoToneColor;
+Icon.setTwoToneColor = setTwoToneColor;
 
-export default Icon as IconType;
+export default Icon;

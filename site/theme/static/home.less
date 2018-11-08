@@ -92,6 +92,10 @@
     position: absolute;
     right: 0;
     bottom: 26px;
+
+    img {
+      max-width: 100%;
+    }
   }
 
   .banner-btns {
@@ -269,6 +273,11 @@ svg {
             vertical-align: middle;
           }
         }
+        .more-mobile-react, .more-mobile-angular {
+          display: block;
+          color: @home-bg-color;
+          margin-top: 16px;
+        }
       }
       .block-image-wrapper {
         height: 104px;
@@ -368,5 +377,15 @@ svg {
     video {
       display: block;
     }
+  }
+}
+
+.banner-1024 {
+  cursor: pointer;
+  transition: all .4s;
+  display: block;
+
+  &:hover {
+    transform: translateY(-16px) scale(1.01);
   }
 }
